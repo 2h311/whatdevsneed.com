@@ -5,6 +5,8 @@ from fastapi import APIRouter, Request, status, Form, File, UploadFile
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
+from . import htmlgen
+
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -16,8 +18,11 @@ async def get_root(request: Request, search: Optional[str] = None):
         return templates.TemplateResponse(
             "index.html", {"request": request, "tools": htmlgen.search(search)}
         )
+    # return templates.TemplateResponse(
+    #     "index.html", {"request": request, "tools": htmlgen.tools("all")}
+    # )
     return templates.TemplateResponse(
-        "index.html", {"request": request, "tools": htmlgen.tools("all")}
+        "index.html", {"request": request,}
     )
 
 

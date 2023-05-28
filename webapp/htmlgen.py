@@ -8,8 +8,8 @@ import random
 
 
 load_dotenv()
-deta = Deta(os.getenv("DETA_TOKEN"))
-toolsdb = deta.Base("whatdevsneed-posts")
+# deta = Deta(os.getenv("DETA_TOKEN"))
+# toolsdb = deta.Base("whatdevsneed-posts")
 
 
 all_categories = [
@@ -100,10 +100,10 @@ def tools_html(entries):
                 "imgurl": entry["img"],
                 "name": entry["name"],
                 "category": entry["category"],
-                "category_link": f"/category/{urllib.parse.quote(entry["category"])}",
+                "category_link": f"/category/{urllib.parse.quote(entry['category'])}",
                 "staffpick": staffpick_html,
                 "description": entry["description"],
-                "link": f"{entry["link"]}?ref=whatdevsneed",
+                "link": f"{entry['link']}?ref=whatdevsneed",
                 "sharelink": "",
                 "pricing": entry["pricing"] 
             }

@@ -4,6 +4,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi import FastAPI, Request, status, Form, File, UploadFile
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from webapp.router import router
 
 def mount_static(app):
     app.mount("/assets", StaticFiles(directory="templates/assets"), name="assets")
@@ -14,6 +15,7 @@ def mount_static(app):
 
 app = FastAPI()
 mount_static(app)
+app.include_router(router)
 templates = Jinja2Templates(directory="templates")
 
 
