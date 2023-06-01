@@ -5,10 +5,13 @@ from dotenv import load_dotenv
 
 import requests
 import cloudinary
+from deta import Deta
 from bs4 import BeautifulSoup
 from cloudinary.uploader import upload
 
 load_dotenv(dotenv_path=Path().absolute().parent / ".env")
+deta = Deta(os.getenv("deta_token"))
+db_document = deta.Base(os.getenv("detabase_name"))
 
 
 def strip_text(text):
@@ -40,14 +43,6 @@ def get_data(card):
     }
 
 
-def upload_images_to_cloudinary(cards):
-    authenticate_cloudinary()
-    for card in cards:
-        data = get_data(card)
-        r = upload(data.get("img"), public_id=data.get("name"), folder="whatdevsneed")
-        print(r)
-
-
 def authenticate_cloudinary():
     cloudinary.config(
         cloud_name=os.getenv("cloud_name"),
@@ -57,11 +52,19 @@ def authenticate_cloudinary():
     )  # authenticate cloudinary
 
 
+def upload_data_to_cloud(cards):
+    for card in cards:
+        data_dict = get_data(card)
+        pprint.pp(data_dict)
+        cloudinary_response = upload(
+            data_dict.get("img"), public_id=data_dict.get("name"), folder="whatdevsneed"
+        )
+        data_dict["img"] = cloudinary_response.get("url")
+        db_document.insert(data_dict)  # push to cloud detabase
+
+
+authenticate_cloudinary()
 res = requests.get("https://whatdevsneed.com/")
 soup = BeautifulSoup(res.text, "html.parser")
 cards = soup.select(".col .card")
-upload_images_to_cloudinary(cards)
-
-# for card in cards:
-#     data = get_data(card)
-#     pprint.pp(data)
+upload_data_to_cloud(cards)
