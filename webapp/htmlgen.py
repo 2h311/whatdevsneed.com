@@ -3,8 +3,8 @@ import jinja2
 from dotenv import load_dotenv
 from deta import Deta
 import os
-import urllib.parse
 import random
+import urllib.parse
 
 
 load_dotenv()
@@ -105,7 +105,7 @@ def tools_html(entries):
                 "description": entry["description"],
                 "link": f"{entry['link']}?ref=whatdevsneed",
                 "sharelink": "",
-                "pricing": entry["pricing"] 
+                "pricing": entry["pricing"],
             }
             tools_html += tools_html_template.render(data)
     return tools_html
@@ -119,7 +119,7 @@ def alert(id_: str) -> str:
             </div>
         """
     elif id_ == "add-error":
-        alert = """ 
+        alert = """
             <div style="margin-bottom: 16px;padding: 10px;border-radius: 5px;background: rgba(220,53,69,0.1);color: var(--bs-red);border-width: 1px;border-style: solid;">
                 <p style="margin-bottom: 0px;"><strong>Error! </strong>The tool couldn&#39;t be added.</p>
             </div>

@@ -22,7 +22,10 @@ async def get_root(request: Request, search: Optional[str] = None):
     #     "index.html", {"request": request, "tools": htmlgen.tools("all")}
     # )
     return templates.TemplateResponse(
-        "index.html", {"request": request,}
+        "index.html",
+        {
+            "request": request,
+        },
     )
 
 

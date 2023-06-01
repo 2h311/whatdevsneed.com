@@ -6,6 +6,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from webapp.router import router
 
+
 def mount_static(app):
     app.mount("/assets", StaticFiles(directory="templates/assets"), name="assets")
     app.mount(
