@@ -1,15 +1,17 @@
-from dotenv.main import rewrite
-import jinja2
-from dotenv import load_dotenv
-from deta import Deta
 import os
 import random
 import urllib.parse
+from pathlib import Path
+
+import jinja2
+from deta import Deta
+from dotenv import load_dotenv
+from dotenv.main import rewrite
 
 
 load_dotenv()
-# deta = Deta(os.getenv("DETA_TOKEN"))
-# toolsdb = deta.Base("whatdevsneed-posts")
+deta = Deta(os.getenv("deta_token"))
+db_document = deta.Base(os.getenv("detabase_name"))
 
 
 all_categories = [
@@ -60,7 +62,7 @@ def categorylist() -> list:
 
 
 def search(query):
-    search = toolsdb.fetch({"show": True}).items
+    search = db_document.fetch({"show": True}).items
     entries = list()
     for entry in search:
         if (
@@ -74,9 +76,9 @@ def search(query):
 
 def tools(tag):
     if tag == "all":
-        entries = toolsdb.fetch({"show": True}).items
+        entries = db_document.fetch({"show": True}).items
     else:
-        entries = toolsdb.fetch(
+        entries = db_document.fetch(
             {"show": True, "category": urllib.parse.unquote(tag)}
         ).items
     return tools_html(entries)
@@ -89,7 +91,7 @@ def tools_html(entries):
         random.shuffle(entries)
         tools_html = """"""
 
-        with open("/templates/elements/tools.html", "r") as fp:
+        with open("./templates/elements/tools.html", "r") as fp:
             tools_html_template = jinja2.Template(fp.read())
         for entry in entries:
             if entry["staffpick"] is True:
@@ -100,10 +102,10 @@ def tools_html(entries):
                 "imgurl": entry["img"],
                 "name": entry["name"],
                 "category": entry["category"],
-                "category_link": f"/category/{urllib.parse.quote(entry['category'])}",
+                "category_link": f"/category/{urllib.parse.unquote(entry['category'])}",
                 "staffpick": staffpick_html,
                 "description": entry["description"],
-                "link": f"{entry['link']}?ref=whatdevsneed",
+                "link": entry["link"],
                 "sharelink": "",
                 "pricing": entry["pricing"],
             }

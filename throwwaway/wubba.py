@@ -21,7 +21,7 @@ def strip_text(text):
 def get_data(card):
     name = card.select_one("a.link-ignore").text
     img = card.select_one("img.img-fluid").get("src")
-    category = card.select_one("h6 a").get("href")
+    category = card.select_one("h6 a").text
 
     staffpick = False
     staffpick_span = card.select("h6")[1].select_one("span")
@@ -39,7 +39,7 @@ def get_data(card):
         "description": strip_text(description),
         "link": strip_text(link),
         "pricing": strip_text(pricing),
-        "show": False,
+        "show": True,
     }
 
 
@@ -59,7 +59,7 @@ def upload_data_to_cloud(cards):
         cloudinary_response = upload(
             data_dict.get("img"), public_id=data_dict.get("name"), folder="whatdevsneed"
         )
-        data_dict["img"] = cloudinary_response.get("url")
+        data_dict["img"] = cloudinary_response.get("secure_url")
         db_document.insert(data_dict)  # push to cloud detabase
 
 

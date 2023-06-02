@@ -18,21 +18,15 @@ async def get_root(request: Request, search: Optional[str] = None):
         return templates.TemplateResponse(
             "index.html", {"request": request, "tools": htmlgen.search(search)}
         )
-    # return templates.TemplateResponse(
-    #     "index.html", {"request": request, "tools": htmlgen.tools("all")}
-    # )
     return templates.TemplateResponse(
-        "index.html",
-        {
-            "request": request,
-        },
+        "index.html", {"request": request, "tools": htmlgen.tools("all")}
     )
 
 
 @router.get("/category/{tag}", response_class=HTMLResponse)
 async def get_category(request: Request, tag: str):
     return templates.TemplateResponse(
-        "index.html", {"request": request, "tools": htmlgen.tool(tag)}
+        "index.html", {"request": request, "tools": htmlgen.tools(tag)}
     )
 
 
@@ -71,45 +65,48 @@ async def post_add_submit(
 ):
     try:
         # Upload image
-        image = str(uuid.uuid4()) + "." + image.filename.rsplit(".", 1)[1]
-        img_content = image.file.read()
+        print(image.filename.rsplit(".", 1)[-1])
+        # image = str(uuid.uuid4()) + "." + image.filename.rsplit(".", 1)[1]
+        # print(dir(image))
+        # img_content = image.file.read()
+        # print(img_content)
 
-        # Get S3 client
-        client = get_s3_client()
-        # Upload
-        client.put_object(
-            Body=img_content,
-            Bucket="cdn.whatdevsneed.com",
-            key=f"img/{img_name}",
-            ContentType=image.content_type,
-        )
-        # Set public
-        client.put_object_acl(
-            ACL="public-read",
-            Bucket="cdn.whatdevsneed.com",
-            Key=f"img/{img_name}",
-        )
+        # # Get S3 client
+        # client = get_s3_client()
+        # # Upload
+        # client.put_object(
+        #     Body=img_content,
+        #     Bucket="cdn.whatdevsneed.com",
+        #     key=f"img/{img_name}",
+        #     ContentType=image.content_type,
+        # )
+        # # Set public
+        # client.put_object_acl(
+        #     ACL="public-read",
+        #     Bucket="cdn.whatdevsneed.com",
+        #     Key=f"img/{img_name}",
+        # )
         # Add to database
-        tools.insert(
-            {
-                "name": name,
-                "img": f"https://cdn.whatdevsneed.com/img/{img_name}",
-                "category": category,
-                "staffpick": False,
-                "description": description,
-                "link": link,
-                "pricing": pricing,
-                "show": False,
-            }
-        )
+        # tools.insert(
+        #     {
+        #         "name": name,
+        #         "img": f"https://cdn.whatdevsneed.com/img/{img_name}",
+        #         "category": category,
+        #         "staffpick": False,
+        #         "description": description,
+        #         "link": link,
+        #         "pricing": pricing,
+        #         "show": False,
+        #     }
+        # )
 
-        # Send push
-        api_key = os.getenv("PUSH_TOKEN")
-        title = "[wdn] New Submission"
-        body = f"{name} ({category})"
-        push_res = requests.post(
-            f"https://push.techulus.com/api/v1/notify/{api_key}?title={title}&body={body}"
-        )
+        # # Send push
+        # api_key = os.getenv("PUSH_TOKEN")
+        # title = "[wdn] New Submission"
+        # body = f"{name} ({category})"
+        # push_res = requests.post(
+        #     f"https://push.techulus.com/api/v1/notify/{api_key}?title={title}&body={body}"
+        # )
 
         return RedirectResponse(
             url="/add?show=success", status_code=status.HTTP_303_SEE_OTHER
