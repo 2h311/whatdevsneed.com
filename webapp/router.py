@@ -1,11 +1,14 @@
 import os
 from typing import Optional
 
-from fastapi import APIRouter, Request, status, Form, File, UploadFile
-from fastapi.responses import HTMLResponse, RedirectResponse
+import requests
+from cloudinary.uploader import upload
 from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi import APIRouter, Request, status, Form, File, UploadFile
 
 from . import htmlgen
+from db.detabase import db_document
 
 
 router = APIRouter()
@@ -64,50 +67,31 @@ async def post_add_submit(
     pricing: str = Form(...),
 ):
     try:
-        # Upload image
-        print(image.filename.rsplit(".", 1)[-1])
-        # image = str(uuid.uuid4()) + "." + image.filename.rsplit(".", 1)[1]
-        # print(dir(image))
-        # img_content = image.file.read()
-        # print(img_content)
-
-        # # Get S3 client
-        # client = get_s3_client()
-        # # Upload
-        # client.put_object(
-        #     Body=img_content,
-        #     Bucket="cdn.whatdevsneed.com",
-        #     key=f"img/{img_name}",
-        #     ContentType=image.content_type,
-        # )
-        # # Set public
-        # client.put_object_acl(
-        #     ACL="public-read",
-        #     Bucket="cdn.whatdevsneed.com",
-        #     Key=f"img/{img_name}",
-        # )
+        # push image to cloudinary
+        cloudinary_response = upload(
+            image.file.read(), public_id=name, folder="whatdevsneed"
+        )
         # Add to database
-        # tools.insert(
-        #     {
-        #         "name": name,
-        #         "img": f"https://cdn.whatdevsneed.com/img/{img_name}",
-        #         "category": category,
-        #         "staffpick": False,
-        #         "description": description,
-        #         "link": link,
-        #         "pricing": pricing,
-        #         "show": False,
-        #     }
-        # )
+        db_document.insert(
+            {
+                "name": name,
+                "img": cloudinary_response.get("secure_url"),
+                "category": category,
+                "staffpick": False,
+                "description": description,
+                "link": link,
+                "pricing": pricing,
+                "show": False,
+            }
+        )
 
-        # # Send push
-        # api_key = os.getenv("PUSH_TOKEN")
-        # title = "[wdn] New Submission"
-        # body = f"{name} ({category})"
-        # push_res = requests.post(
-        #     f"https://push.techulus.com/api/v1/notify/{api_key}?title={title}&body={body}"
-        # )
-
+        # Send push
+        token = os.getenv("push_token")
+        title = "[wdn] New Submission"
+        body = f"{name} ({category})"
+        push_res = requests.post(
+            f"https://push.techulus.com/api/v1/notify/{token}?title={title}&body={body}"
+        )
         return RedirectResponse(
             url="/add?show=success", status_code=status.HTTP_303_SEE_OTHER
         )

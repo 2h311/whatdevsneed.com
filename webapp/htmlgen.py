@@ -8,11 +8,7 @@ from deta import Deta
 from dotenv import load_dotenv
 from dotenv.main import rewrite
 
-
-load_dotenv()
-deta = Deta(os.getenv("deta_token"))
-db_document = deta.Base(os.getenv("detabase_name"))
-
+from db.detabase import db_document
 
 all_categories = [
     "AIs",
